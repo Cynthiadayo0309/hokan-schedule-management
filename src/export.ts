@@ -1,5 +1,5 @@
 import ExcelJS from 'exceljs';
-import { assignmentNames, DAYS, inkColor, ROUTE_LABEL, weekDates, weekday, type Facility, type Route, type Week } from './domain';
+import { assignmentNames, DAYS, inkColor, ROUTE_LABEL, visitTypeText, weekDates, weekday, type Facility, type Route, type Week } from './domain';
 import { gridRows } from './schedule';
 import { saveFile } from './storage';
 export async function workbookFor(f:Facility,w:Week,date?:string) {
@@ -28,7 +28,7 @@ export async function workbookFor(f:Facility,w:Week,date?:string) {
         const route:Route=item.night?'N':(['A','B','C'] as Route[])[ri];
         if(item.night) sheet.mergeCells(row,first,row,first+count-1);
         const v=w.visits.filter(v=>v.businessDate===d && v.route===route && v.time===item.time)[item.slot];
-        if(v) {const c=sheet.getCell(row,first+ri);c.value=`${v.clientName}\n${v.time} / ${v.duration}分 / ${v.type}${v.notes?'\n'+v.notes:''}`;c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+f.colors[v.type].slice(1)}};c.font={color:{argb:'FF'+inkColor(f.colors[v.type]).slice(1)}};}
+        if(v) {const c=sheet.getCell(row,first+ri);c.value=`${v.clientName}\n${v.time} / ${v.duration}分 / ${visitTypeText(v)}${v.notes?'\n'+v.notes:''}`;c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+f.colors[v.type].slice(1)}};c.font={color:{argb:'FF'+inkColor(f.colors[v.type]).slice(1)}};}
       }
     });
     sheet.getRow(row).height=42;row++;

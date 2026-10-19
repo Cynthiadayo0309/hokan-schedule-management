@@ -1,6 +1,6 @@
 [package]
 name = "visit-schedule-manager"
-version = "0.1.0"
+version = "0.2.0"
 description = "Offline visit schedule manager"
 edition = "2021"
 

@@ -1,5 +1,5 @@
 import { it,expect } from 'vitest';
-import { createFacility,generateWeek,uid, type Rule } from './domain';
+import { createFacility,generateWeek,setCareLevel,uid, type Rule } from './domain';
 import { workbookFor } from './export';
 it('週間・日別Excelが同時刻の複数訪問と夜勤を欠落せずセルとして出力する',async()=>{
   const f=createFacility('Excelテスト施設');const start='2026-10-11';
@@ -7,3 +7,4 @@ it('週間・日別Excelが同時刻の複数訪問と夜勤を欠落せずセ�
   const w=generateWeek(f,start);
   for(const date of [undefined,start]) {const book=await workbookFor(f,w,date);const values:string[]=[];book.worksheets[0].eachRow(row=>row.eachCell(c=>{if(c.type!==1 && typeof c.value==='string') values.push(c.value);}));for(let i=0;i<4;i++) expect(values.some(s=>s.includes('出力確認'+i))).toBe(true);expect(book.worksheets[0].getImages()).toHaveLength(0);const bytes=await book.xlsx.writeBuffer();expect(bytes.byteLength).toBeGreaterThan(1000);}
 });
+it('介護区分と自動入力した所要時間を週間・日別Excelに残す',async()=>{const f=createFacility('介護区分テスト');f.clients.push({id:uid(),code:'U1',name:'区分確認',type:'介護',active:true,notes:''});const id=uid(),rule:Rule={id,seriesId:id,clientId:f.clients[0].id,type:'介護',frequency:'daily',days:[],ordinals:[],time:'09:00',duration:30,anchor:'2026-10-11',route:'A',from:'2026-10-11',until:'',notes:''};setCareLevel(rule,'I1');f.rules.push(rule);const w=generateWeek(f,'2026-10-11');for(const date of [undefined,w.start]) {const book=await workbookFor(f,w,date);expect(book.worksheets[0].getCell('B6').text).toContain('19分 / 介護Ⅰ1');}});
